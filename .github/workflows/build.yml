@@ -27,17 +27,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '16'
       
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '11'
       
       - name: Install Cordova
         run: |
-          npm install -g cordova@12
+          npm install -g cordova@11
           cordova telemetry off
       
       - name: Prepare Android icons
@@ -56,7 +56,14 @@ jobs:
           fi
       
       - name: Add Android Platform
-        run: cordova platform add android@12.0.1
+        run: cordova platform add android@11.0.0
+      
+      - name: Fix Gradle version
+        run: |
+          cd platforms/android
+          # Mampiasa Gradle 7.4.2 mba hisorohana ny XmlParser issue
+          ./gradlew wrapper --gradle-version=7.4.2 --distribution-type=all
+          cd ../..
       
       - name: Build APK
         run: cordova build android --release
