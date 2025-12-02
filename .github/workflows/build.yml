@@ -40,6 +40,21 @@ jobs:
           npm install -g cordova@11
           cordova telemetry off
       
+      - name: Prepare Android icons
+        run: |
+          mkdir -p res/icon/android
+          if [ -f "res/icon/icon.png" ]; then
+            cp res/icon/icon.png res/icon/android/ldpi.png
+            cp res/icon/icon.png res/icon/android/mdpi.png
+            cp res/icon/icon.png res/icon/android/hdpi.png
+            cp res/icon/icon.png res/icon/android/xhdpi.png
+            cp res/icon/icon.png res/icon/android/xxhdpi.png
+            cp res/icon/icon.png res/icon/android/xxxhdpi.png
+            echo "✅ Icons created successfully"
+          else
+            echo "⚠️ Warning: res/icon/icon.png not found"
+          fi
+      
       - name: Add Android Platform
         run: cordova platform add android@10.1.2
       
