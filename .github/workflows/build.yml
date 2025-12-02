@@ -83,21 +83,19 @@ jobs:
           export PATH=/opt/gradle/gradle-7.6/bin:$PATH
           cordova platform add android@12.0.1
       
-      - name: Build APK
+      - name: Build APK (not AAB)
         run: |
           export PATH=/opt/gradle/gradle-7.6/bin:$PATH
-          cordova build android --release
+          cordova build android --release -- --packageType=apk
       
       - name: List build outputs
         run: |
-          echo "📦 Listing all APK files:"
-          find platforms/android/app/build/outputs -name "*.apk" -o -name "*.aab"
+          echo "📦 Listing all build files:"
+          find platforms/android/app/build/outputs -type f
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Bibilava-APK
-          path: |
-            platforms/android/app/build/outputs/apk/**/*.apk
-            platforms/android/app/build/outputs/bundle/**/*.aab
+          path: platforms/android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
