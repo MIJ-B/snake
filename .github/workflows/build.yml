@@ -1,10 +1,8 @@
-name: Build Bibilava APK
+name: Build Kotokely App
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -12,125 +10,90 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Prepare Cordova structure
-        run: |
-          mkdir -p www
-          cp index.html www/ || true
-          cp app.js www/ || true
-          cp manifest.json www/ || true
-          cp -r images www/ || true
-          cp -r sounds www/ || true
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      
-      - name: Setup Gradle 7.6
-        run: |
-          wget https://services.gradle.org/distributions/gradle-7.6-bin.zip
-          sudo unzip -d /opt/gradle gradle-7.6-bin.zip
-          sudo rm -rf /usr/share/gradle-9.2.0
-          sudo ln -s /opt/gradle/gradle-7.6 /usr/share/gradle-7.6
-          echo "export GRADLE_HOME=/opt/gradle/gradle-7.6" >> $GITHUB_ENV
-          echo "export PATH=/opt/gradle/gradle-7.6/bin:$PATH" >> $GITHUB_ENV
-      
-      - name: Verify Gradle Version
-        run: |
-          export PATH=/opt/gradle/gradle-7.6/bin:$PATH
-          gradle --version
-      
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      
-      - name: Install Android Build Tools
-        run: |
-          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2"
-          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
-          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses
-      
-      - name: Install Cordova
-        run: |
-          npm install -g cordova@12
-          cordova telemetry off
-      
-      - name: Prepare Android icons
-        run: |
-          mkdir -p res/icon/android
-          if [ -f "res/icon/icon.png" ]; then
-            cp res/icon/icon.png res/icon/android/ldpi.png
-            cp res/icon/icon.png res/icon/android/mdpi.png
-            cp res/icon/icon.png res/icon/android/hdpi.png
-            cp res/icon/icon.png res/icon/android/xhdpi.png
-            cp res/icon/icon.png res/icon/android/xxhdpi.png
-            cp res/icon/icon.png res/icon/android/xxxhdpi.png
-            echo "✅ Icons created successfully"
-          else
-            echo "⚠️ Warning: res/icon/icon.png not found"
-          fi
-      
-      - name: Create Keystore
-        run: |
-          keytool -genkey -v -keystore bibilava.keystore \
-            -alias bibilava \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass bibilava2025 \
-            -keypass bibilava2025 \
-            -dname "CN=Bibilava Game, OU=Gaming, O=MIJ-B, L=Madagascar, ST=Antananarivo, C=MG"
-          echo "✅ Keystore created"
-      
-      - name: Add Android Platform
-        run: |
-          export PATH=/opt/gradle/gradle-7.6/bin:$PATH
-          cordova platform add android@12.0.1
-      
-      - name: Create build.json for signing
-        run: |
-          cat > build.json << 'EOF'
-          {
-            "android": {
-              "release": {
-                "keystore": "bibilava.keystore",
-                "storePassword": "bibilava2025",
-                "alias": "bibilava",
-                "password": "bibilava2025",
-                "keystoreType": ""
-              }
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Create package.json
+      run: |
+        cat > package.json << 'EOF'
+        {
+          "name": "kotokely",
+          "version": "1.0.0",
+          "description": "Kotokely AI Chat Assistant",
+          "main": "app.js",
+          "scripts": {
+            "build": "echo 'Build complete'",
+            "cap:sync": "npx cap sync"
+          },
+          "keywords": ["ai", "chat", "assistant", "malagasy"],
+          "author": "MIJ-B",
+          "license": "MIT",
+          "dependencies": {
+            "@capacitor/android": "^5.5.0",
+            "@capacitor/core": "^5.5.0",
+            "@capacitor/cli": "^5.5.0"
+          }
+        }
+        EOF
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+    
+    - name: Create Capacitor config
+      run: |
+        cat > capacitor.config.json << 'EOF'
+        {
+          "appId": "com.kotokely.app",
+          "appName": "Kotokely",
+          "webDir": ".",
+          "bundledWebRuntime": false,
+          "server": {
+            "androidScheme": "https",
+            "cleartext": true
+          },
+          "plugins": {
+            "SplashScreen": {
+              "launchShowDuration": 2000,
+              "backgroundColor": "#1a1a1a"
             }
           }
-          EOF
-          echo "✅ build.json created"
-      
-      - name: Build Signed APK
-        run: |
-          export PATH=/opt/gradle/gradle-7.6/bin:$PATH
-          cordova build android --release --buildConfig=build.json -- --packageType=apk
-      
-      - name: List build outputs
-        run: |
-          echo "📦 Listing all APK files:"
-          find platforms/android/app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
-      
-      - name: Rename APK
-        run: |
-          mkdir -p release
-          cp platforms/android/app/build/outputs/apk/release/app-release.apk release/Bibilava-v1.0.0-signed.apk
-          echo "✅ APK renamed to Bibilava-v1.0.0-signed.apk"
-      
-      - name: Upload Signed APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Bibilava-Signed-APK
-          path: release/Bibilava-v1.0.0-signed.apk
-          if-no-files-found: error
+        }
+        EOF
+    
+    - name: Initialize Capacitor Android
+      run: |
+        npx cap add android
+        npx cap sync android
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x android/gradlew
+    
+    - name: Build Android Debug APK
+      run: |
+        cd android
+        ./gradlew assembleDebug --stacktrace --info
+    
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: kotokely-debug-apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 30
+    
+    - name: Build info
+      run: |
+        echo "✅ Build successful!"
+        echo "📱 APK location: android/app/build/outputs/apk/debug/app-debug.apk"
+        ls -lh android/app/build/outputs/apk/debug/
