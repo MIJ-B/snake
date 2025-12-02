@@ -58,13 +58,6 @@ jobs:
       - name: Add Android Platform
         run: cordova platform add android@11.0.0
       
-      - name: Fix Gradle version
-        run: |
-          cd platforms/android
-          # Mampiasa Gradle 7.4.2 mba hisorohana ny XmlParser issue
-          ./gradlew wrapper --gradle-version=7.4.2 --distribution-type=all
-          cd ../..
-      
       - name: Build APK
         run: cordova build android --release
       
