@@ -17,7 +17,9 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-        cache: 'npm'
+    
+    - name: Install ImageMagick (for icon conversion)
+      run: sudo apt-get update && sudo apt-get install -y imagemagick
     
     - name: Create package.json
       run: |
@@ -28,8 +30,7 @@ jobs:
           "description": "Kotokely AI Chat Assistant",
           "main": "app.js",
           "scripts": {
-            "build": "echo 'Build complete'",
-            "cap:sync": "npx cap sync"
+            "build": "echo 'Build complete'"
           },
           "keywords": ["ai", "chat", "assistant", "malagasy"],
           "author": "MIJ-B",
@@ -62,20 +63,53 @@ jobs:
           "server": {
             "androidScheme": "https",
             "cleartext": true
-          },
-          "plugins": {
-            "SplashScreen": {
-              "launchShowDuration": 2000,
-              "backgroundColor": "#1a1a1a"
-            }
           }
         }
         EOF
+    
+    - name: Download and prepare app icon
+      run: |
+        # Download icon from your URL
+        curl -o icon.png "https://i.ibb.co/6cdRVkL8/37e57528-8a5b-11ea-b169-e77fb0bc2332-f70b8608-384x384o-31a9526fec54.png"
+        
+        # Check if download successful
+        if [ -f icon.png ]; then
+          echo "✅ Icon downloaded successfully"
+        else
+          echo "⚠️ Icon download failed, using default"
+        fi
     
     - name: Initialize Capacitor Android
       run: |
         npx cap add android
         npx cap sync android
+    
+    - name: Generate Android icons
+      run: |
+        if [ -f icon.png ]; then
+          # Create mipmap directories
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+          
+          # Generate different sizes
+          convert icon.png -resize 48x48 android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          convert icon.png -resize 72x72 android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          convert icon.png -resize 96x96 android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          convert icon.png -resize 144x144 android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          convert icon.png -resize 192x192 android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          
+          # Round icons
+          convert icon.png -resize 48x48 android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+          convert icon.png -resize 72x72 android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+          convert icon.png -resize 96x96 android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+          convert icon.png -resize 144x144 android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+          convert icon.png -resize 192x192 android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+          
+          echo "✅ Icons generated successfully"
+        fi
     
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
@@ -83,17 +117,18 @@ jobs:
     - name: Build Android Debug APK
       run: |
         cd android
-        ./gradlew assembleDebug --stacktrace --info
+        ./gradlew assembleDebug --stacktrace
     
-    - name: Upload APK Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
-        name: kotokely-debug-apk
+        name: kotokely-app
         path: android/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
     
-    - name: Build info
+    - name: Build Summary
       run: |
         echo "✅ Build successful!"
-        echo "📱 APK location: android/app/build/outputs/apk/debug/app-debug.apk"
-        ls -lh android/app/build/outputs/apk/debug/
+        echo "📱 App: Kotokely"
+        echo "🎨 Icon: Custom (from URL)"
+        echo "📦 APK ready for download"
