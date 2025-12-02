@@ -15,7 +15,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+    - name: Prepare Cordova structure
+    run: |
+      mkdir -p www
+      cp index.html www/
+      cp app.js www/
+      cp manifest.json www/
+      cp -r images www/
+      cp -r sounds www/
     
+      
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
