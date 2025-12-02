@@ -14,8 +14,8 @@
   "author": "Joro",
   "license": "MIT",
   "devDependencies": {
-    "cordova": "^12.0.0",
-    "cordova-android": "^12.0.1"
+    "cordova": "^11.0.0",
+    "cordova-android": "^11.0.0"
   },
   "cordova": {
     "platforms": [
