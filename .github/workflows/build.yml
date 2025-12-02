@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
       
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -35,9 +35,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
+      - name: Setup Gradle
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gradle
+      
       - name: Install Cordova
         run: |
-          npm install -g cordova@11
+          npm install -g cordova@12
           cordova telemetry off
       
       - name: Prepare Android icons
@@ -56,7 +61,7 @@ jobs:
           fi
       
       - name: Add Android Platform
-        run: cordova platform add android@11.0.0
+        run: cordova platform add android@12.0.1
       
       - name: Build APK
         run: cordova build android --release
