@@ -35,10 +35,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
-      - name: Setup Gradle
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Install Android Build Tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gradle
+          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2"
+          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
+          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses
       
       - name: Install Cordova
         run: |
