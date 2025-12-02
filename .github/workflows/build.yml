@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build:           # ← 2 spaces eo alohan'ny build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
     - name: Prepare Cordova structure
     run: |
       mkdir -p www
