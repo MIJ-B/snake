@@ -35,14 +35,28 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       
+      - name: Setup Gradle 7.6
+        run: |
+          wget https://services.gradle.org/distributions/gradle-7.6-bin.zip
+          sudo unzip -d /opt/gradle gradle-7.6-bin.zip
+          sudo rm -rf /usr/share/gradle-9.2.0
+          sudo ln -s /opt/gradle/gradle-7.6 /usr/share/gradle-7.6
+          echo "export GRADLE_HOME=/opt/gradle/gradle-7.6" >> $GITHUB_ENV
+          echo "export PATH=/opt/gradle/gradle-7.6/bin:$PATH" >> $GITHUB_ENV
+      
+      - name: Verify Gradle Version
+        run: |
+          export PATH=/opt/gradle/gradle-7.6/bin:$PATH
+          gradle --version
+      
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
       
       - name: Install Android Build Tools
         run: |
-          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2"
-          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
-          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2"
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-34"
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses
       
       - name: Install Cordova
         run: |
@@ -65,10 +79,14 @@ jobs:
           fi
       
       - name: Add Android Platform
-        run: cordova platform add android@12.0.1
+        run: |
+          export PATH=/opt/gradle/gradle-7.6/bin:$PATH
+          cordova platform add android@12.0.1
       
       - name: Build APK
-        run: cordova build android --release
+        run: |
+          export PATH=/opt/gradle/gradle-7.6/bin:$PATH
+          cordova build android --release
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
