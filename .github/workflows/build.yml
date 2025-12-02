@@ -61,7 +61,9 @@ jobs:
       - name: Force Gradle 7.6.4
         run: |
           cd platforms/android
-          # Mamorona Gradle wrapper vaovao manery ny version 7.6.4
+          # Mamorona ny gradle/wrapper directory raha tsy misy
+          mkdir -p gradle/wrapper
+          # Mamorona gradle-wrapper.properties
           cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
           distributionBase=GRADLE_USER_HOME
           distributionPath=wrapper/dists
@@ -71,7 +73,13 @@ jobs:
           zipStoreBase=GRADLE_USER_HOME
           zipStorePath=wrapper/dists
           EOF
-          chmod +x gradlew
+          # Manamarina fa misy ny gradlew
+          if [ -f "gradlew" ]; then
+            chmod +x gradlew
+            echo "✅ Gradle wrapper configured for version 7.6.4"
+          else
+            echo "⚠️ Warning: gradlew not found, will use system gradle"
+          fi
           cd ../..
       
       - name: Build APK
