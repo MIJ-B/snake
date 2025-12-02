@@ -88,8 +88,16 @@ jobs:
           export PATH=/opt/gradle/gradle-7.6/bin:$PATH
           cordova build android --release
       
+      - name: List build outputs
+        run: |
+          echo "📦 Listing all APK files:"
+          find platforms/android/app/build/outputs -name "*.apk" -o -name "*.aab"
+      
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Bibilava-APK
-          path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: |
+            platforms/android/app/build/outputs/apk/**/*.apk
+            platforms/android/app/build/outputs/bundle/**/*.aab
+          if-no-files-found: error
