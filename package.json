@@ -1,0 +1,24 @@
+
+  "name": "bibilava",
+  "version": "1.0.0",
+  "description": "Snake Game Malagasy",
+  "main": "index.js",
+  "scripts": {
+    "build": "cordova build android --release"
+  },
+  "keywords": ["game", "snake", "cordova"],
+  "author": "Joro",
+  "license": "MIT",
+  "devDependencies": {
+    "cordova": "^12.0.0",
+    "cordova-android": "^12.0.0"
+  },
+  "cordova": {
+    "platforms": ["android"],
+    "plugins": {
+      "cordova-plugin-vibration": {},
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-screen-orientation": {}
+    }
+  }
+}
