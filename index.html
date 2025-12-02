@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="scoreDisplay" class="ui-overlay">Score: 0</div>
+        <div id="levelDisplay" class="ui-overlay">Level: 1</div>
+        <div id="highScoreDisplay" class="ui-overlay">Best: 0</div>
+        <div id="ghostModeDisplay" class="ui-overlay">GHOST: 5s</div>
+        <div id="timerDisplay" class="ui-overlay">60s</div>
+
+        <button id="pauseBtn">⏸</button>
+        <button id="settingsBtn">⚙</button>
+        
+        <div id="settingsPanel">
+            <h2>SETTINGS</h2>
+            
+            <div class="setting-section">
+                <h3>Game Mode</h3>
+                <div id="modeClassic" class="setting-option mode-option active" data-mode="classic">
+                    🎮 Classic Mode
+                </div>
+                <div id="modeTimeAttack" class="setting-option mode-option" data-mode="timeattack">
+                    ⏱️ Time Attack
+                </div>
+                <div id="modeSurvival" class="setting-option mode-option" data-mode="survival">
+                    💀 Survival Mode
+                </div>
+                <div id="modeZen" class="setting-option mode-option" data-mode="zen">
+                    🧘 Zen Mode
+                </div>
+            </div>
+            
+            <div class="setting-section">
+                <h3>Snake Skin</h3>
+                <div id="skinSelector" class="setting-option">
+                    🎨 Classic Green
+                </div>
+            </div>
+            
+            <div class="setting-section">
+                <h3>Audio & Vibration</h3>
+                <div id="soundToggle" class="setting-option on">🔊 Sound: ON</div>
+                <div id="vibrationToggle" class="setting-option on">📳 Vibrate: ON</div>
+            </div>
+            
+            <div id="closeSettingsBtn">CLOSE</div>
+        </div>
+        
+        <div id="pauseOverlay">
+            <div class="overlay-text overlay-title">PAUSED</div>
+            <div class="overlay-text overlay-hint">Tap Pause button hanohy</div>
+        </div>
+        
+        <div id="gameOverOverlay">
+            <div class="overlay-text overlay-title" style="color: #ef4444;">GAME OVER!</div>
+            <div class="overlay-text overlay-subtitle" id="finalScore">Score: 0 | Level: 1</div>
+            <div class="overlay-text record-text" id="newRecord" style="display: none;">🏆 NEW RECORD! 🏆</div>
+            <div class="overlay-text overlay-hint">Tap anywhere hanohy</div>
+        </div>
+
+        <div id="modeInfoOverlay" class="mode-info">
+            <h2 id="modeInfoTitle">Classic Mode</h2>
+            <p id="modeInfoDesc">Mode mahazatra - mitombo ny bibilava, miha-sarotra rehefa mitombo level</p>
+            <button id="modeInfoBtn">START</button>
+        </div>
+
+        <div id="loadingScreen">
+            <h2>🐍 Loading Snake...</h2>
+            <div class="spinner"></div>
+            <p id="loadingStatus">Loading sprites...</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
