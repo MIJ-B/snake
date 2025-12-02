@@ -78,24 +78,59 @@ jobs:
             echo "⚠️ Warning: res/icon/icon.png not found"
           fi
       
+      - name: Create Keystore
+        run: |
+          keytool -genkey -v -keystore bibilava.keystore \
+            -alias bibilava \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass bibilava2025 \
+            -keypass bibilava2025 \
+            -dname "CN=Bibilava Game, OU=Gaming, O=MIJ-B, L=Madagascar, ST=Antananarivo, C=MG"
+          echo "✅ Keystore created"
+      
       - name: Add Android Platform
         run: |
           export PATH=/opt/gradle/gradle-7.6/bin:$PATH
           cordova platform add android@12.0.1
       
-      - name: Build APK (not AAB)
+      - name: Create build.json for signing
+        run: |
+          cat > build.json << 'EOF'
+          {
+            "android": {
+              "release": {
+                "keystore": "bibilava.keystore",
+                "storePassword": "bibilava2025",
+                "alias": "bibilava",
+                "password": "bibilava2025",
+                "keystoreType": ""
+              }
+            }
+          }
+          EOF
+          echo "✅ build.json created"
+      
+      - name: Build Signed APK
         run: |
           export PATH=/opt/gradle/gradle-7.6/bin:$PATH
-          cordova build android --release -- --packageType=apk
+          cordova build android --release --buildConfig=build.json -- --packageType=apk
       
       - name: List build outputs
         run: |
-          echo "📦 Listing all build files:"
-          find platforms/android/app/build/outputs -type f
+          echo "📦 Listing all APK files:"
+          find platforms/android/app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
       
-      - name: Upload APK
+      - name: Rename APK
+        run: |
+          mkdir -p release
+          cp platforms/android/app/build/outputs/apk/release/app-release.apk release/Bibilava-v1.0.0-signed.apk
+          echo "✅ APK renamed to Bibilava-v1.0.0-signed.apk"
+      
+      - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: Bibilava-APK
-          path: platforms/android/app/build/outputs/apk/release/*.apk
+          name: Bibilava-Signed-APK
+          path: release/Bibilava-v1.0.0-signed.apk
           if-no-files-found: error
